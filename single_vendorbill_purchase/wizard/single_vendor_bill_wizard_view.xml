@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form view of Merge Sale order -->
+    <record id="view_create_single_vendor_bill" model="ir.ui.view">
+        <field name="name">single.vendor.bill.form</field>
+        <field name="model">single.vendor.bill</field>
+        <field name="arch" type="xml">
+             <form string="Create Single Vendor Bill">
+                <separator string="Are you sure you want to create single vendor bill of selected orders?"/>
+                <footer>
+                    <button name="create_return_vendor_bill" string="Yes" type="object"
+                    class="btn-primary"/>
+                    <button string="No" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action of Merge Sale Order -->
+    <record id="action_view_create_single_vendor_bill" model="ir.actions.act_window">
+        <field name="name">Create Single Vendor Bill</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">single.vendor.bill</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <act_window 
+        id="action_create_single_vendor_bill" 
+        multi="True"
+        key2="client_action_multi" 
+        name="Create Single Vendor Bill" 
+        res_model="single.vendor.bill"
+        src_model="purchase.order" 
+        view_mode="form" 
+        target="new" 
+        view_type="form"
+        view_id="view_create_single_vendor_bill" />
+
+</odoo>
