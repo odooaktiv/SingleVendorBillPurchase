@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models, api, _
+from odoo.tools.float_utils import float_is_zero, float_compare
 from odoo.exceptions import UserError
 import datetime
 
@@ -58,14 +59,16 @@ class SingleVendorBill(models.TransientModel):
 		invoice_line = self.env['account.invoice.line']
 		purchase_orders = self.env['purchase.order'].browse(self._context.get('active_ids'))
 		name_orders = [order.name for order in purchase_orders]
-		journal_id = self.env['account.invoice'].default_get(['journal_id'])['journal_id']
+		journal_id = self.env['account.journal'].search([('type','=','purchase')])
+		partner_ids = [order.partner_id for order in purchase_orders if order.partner_id.id]
 		invoice_lines = []
 		for order in purchase_orders:
 			for line in order.order_line:
+				account_id = line.product_id.property_account_expense_id or line.product_id.categ_id.property_account_expense_categ_id
 				invoice_lines.append(((0,0,{
 							'name': line.name,
 							'origin': line.order_id.name,
-							'account_id': invoice_line.with_context({'journal_id': journal_id, 'type': 'in_invoice'})._default_account(),
+							'account_id': account_id.id,
 							'price_unit': line.price_unit,
 							'quantity': line.product_qty,
 							'uom_id': line.product_uom.id,
@@ -77,9 +80,10 @@ class SingleVendorBill(models.TransientModel):
 							'origin':','.join(map(str, name_orders)),
 							'date_invoice':datetime.datetime.now().date(),
 							'type': 'in_invoice',
+							'state':'draft',
 							'partner_id': order.partner_id.id,
 							'invoice_line_ids': invoice_lines,
-							'journal_id': journal_id,
+							'journal_id': journal_id.id or False,
 							'comment': order.notes,
 							'payment_term_id': order.payment_term_id.id,
 							'fiscal_position_id': order.fiscal_position_id.id,
@@ -87,5 +91,17 @@ class SingleVendorBill(models.TransientModel):
 							'user_id': order.activity_user_id and order.activity_user_id.id,
 						}
 		vendor_bill_id = self.env['account.invoice'].create(vendor_bill_vals)
+		if vendor_bill_id:
+			precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+			for order in purchase_orders:
+				if order.state not in ('purchase', 'done'):
+					order.invoice_status = 'no'
+					continue
+				if any(float_compare(line.qty_invoiced, line.product_qty if line.product_id.purchase_method == 'purchase' else line.qty_received, precision_digits=precision) == -1 for line in order.order_line):
+					order.invoice_status = 'to invoice'
+				elif all(float_compare(line.qty_invoiced, line.product_qty if line.product_id.purchase_method == 'purchase' else line.qty_received, precision_digits=precision) >= 0 for line in order.order_line):
+					order.invoice_status = 'invoiced'
+				else:
+					order.invoice_status = 'no'
 		vendor_bill_id._onchange_invoice_line_ids()
 		return vendor_bill_id

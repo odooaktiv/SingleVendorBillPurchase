@@ -4,7 +4,7 @@
     'name': 'Single Vendor Bill From Multiple Purchase Order',
     'category': 'Purchase',
     'summary': 'This module will create single vendor bill of multiple purchase orders.',
-    'version': '11.0.1.0.0',
+    'version': '11.0.1.0.1',
     'website': 'http://www.aktivsoftware.com',
     'author': 'Aktiv Software',
     'description': 'Create single vendor bill from multiple purchase order',
