@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 {
-    'name': 'Single Vendor Bill From Multiple Purchase Order',
+    'name': 'Merge Purchase Orders from Single Vendor',
     'category': 'Purchase',
     'summary': 'This module will create single vendor bill of multiple purchase orders.',
     'version': '11.0.1.0.1',
