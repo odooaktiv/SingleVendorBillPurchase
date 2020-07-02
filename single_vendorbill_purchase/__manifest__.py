@@ -2,7 +2,7 @@
 
 {
     'name': 'Merge Purchase Orders from Single Vendor',
-    'category': 'Purchase',
+    'category': 'Purchases',
     'summary': 'This module will create single vendor bill of multiple purchase orders.',
     'version': '11.0.1.0.1',
     'website': 'http://www.aktivsoftware.com',
