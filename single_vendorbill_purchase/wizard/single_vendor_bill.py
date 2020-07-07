@@ -66,6 +66,7 @@ class SingleVendorBill(models.TransientModel):
 			for line in order.order_line:
 				account_id = line.product_id.property_account_expense_id or line.product_id.categ_id.property_account_expense_categ_id
 				invoice_lines.append(((0,0,{
+							'purchase_line_id': line.id,
 							'name': line.name,
 							'origin': line.order_id.name,
 							'account_id': account_id.id,
